@@ -108,21 +108,27 @@ class ChromaManager:
             print(f"Error getting all tasks: {e}")
             return []
     
-    def update_task(self, task_id: int, title: str, description: str = "", 
-                   status: str = "pending", deadline: Optional[str] = None) -> None:
-        """Update a task."""
+    def update_task(self, task_id: int, title: Optional[str] = None, description: Optional[str] = None, 
+                   status: Optional[str] = None, deadline: Optional[str] = None) -> None:
+        """Update a task. Only updates fields that are provided (not None)."""
         task = self.get_task(task_id)
         if not task:
             return
         
-        doc = f"{title}\n\n{description}\n\nStatus: {status}\nDeadline: {deadline or 'None'}"
+        # Use existing values for fields not provided
+        new_title = title if title is not None else task["title"]
+        new_description = description if description is not None else task["description"]
+        new_status = status if status is not None else task["status"]
+        new_deadline = deadline if deadline is not None else task["deadline"]
+        
+        doc = f"{new_title}\n\n{new_description}\n\nStatus: {new_status}\nDeadline: {new_deadline or 'None'}"
         related_notes = [str(n["id"]) for n in task.get("notes", [])]
         metadata = {
             "id": str(task_id),
-            "title": title,
-            "description": description or "",
-            "status": status,
-            "deadline": deadline or "",
+            "title": new_title,
+            "description": new_description or "",
+            "status": new_status,
+            "deadline": new_deadline or "",
             "related_notes": json.dumps(related_notes)
         }
         self.tasks_col.upsert(ids=[str(task_id)], documents=[doc], metadatas=[metadata])
@@ -191,18 +197,22 @@ class ChromaManager:
             print(f"Error getting all notes: {e}")
             return []
     
-    def update_note(self, note_id: int, title: str, content: str = "") -> None:
-        """Update a note."""
+    def update_note(self, note_id: int, title: Optional[str] = None, content: Optional[str] = None) -> None:
+        """Update a note. Only updates fields that are provided (not None)."""
         note = self.get_note(note_id)
         if not note:
             return
         
-        doc = f"{title}\n\n{content}"
+        # Use existing values for fields not provided
+        new_title = title if title is not None else note["title"]
+        new_content = content if content is not None else note["content"]
+        
+        doc = f"{new_title}\n\n{new_content}"
         related_tasks = [str(t["id"]) for t in note.get("tasks", [])]
         metadata = {
             "id": str(note_id),
-            "title": title,
-            "content": content or "",
+            "title": new_title,
+            "content": new_content or "",
             "created_at": note["created_at"],
             "related_tasks": json.dumps(related_tasks)
         }

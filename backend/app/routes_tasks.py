@@ -39,10 +39,10 @@ def update_task(id):
     manager = get_chroma_manager()
     manager.update_task(
         id,
-        data["title"],
-        data.get("description", ""),
-        data.get("status", "pending"),
-        data.get("deadline", None)
+        data.get("title"),
+        data.get("description"),
+        data.get("status"),
+        data.get("deadline")
     )
     return jsonify({"message": "Task updated"})
 

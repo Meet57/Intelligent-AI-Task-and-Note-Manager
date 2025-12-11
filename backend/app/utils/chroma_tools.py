@@ -26,15 +26,15 @@ def create_task(title: str, description: str = "", status: str = "pending", dead
     return manager.create_task(title, description, status, deadline)
 
 
-def update_task(task_id: int, title: str, description: str = "", status: str = "pending", deadline: Optional[str] = None) -> None:
-    """Update an existing task's details.
+def update_task(task_id: int, title: Optional[str] = None, description: Optional[str] = None, status: Optional[str] = None, deadline: Optional[str] = None) -> None:
+    """Update an existing task's details. Only updates fields that are provided.
     
     Args:
         task_id: The ID of the task to update (required)
-        title: New title for the task (required)
-        description: Updated description (optional)
-        status: Updated status - use 'pending', 'in_progress', or 'completed' (optional)
-        deadline: Updated deadline in YYYY-MM-DD format (optional)
+        title: New title for the task (optional, keeps existing if not provided)
+        description: Updated description (optional, keeps existing if not provided)
+        status: Updated status - use 'pending', 'in_progress', or 'completed' (optional, keeps existing if not provided)
+        deadline: Updated deadline in YYYY-MM-DD format (optional, keeps existing if not provided)
     """
     manager = get_chroma_manager()
     return manager.update_task(task_id, title, description, status, deadline)
@@ -65,13 +65,13 @@ def create_note(title: str, content: str = "", created_at: Optional[str] = None)
     return manager.create_note(title, content, created_at)
 
 
-def update_note(note_id: int, title: str, content: str = "") -> None:
-    """Update an existing note's title and content.
+def update_note(note_id: int, title: Optional[str] = None, content: Optional[str] = None) -> None:
+    """Update an existing note's title and content. Only updates fields that are provided.
     
     Args:
         note_id: The ID of the note to update (required)
-        title: New title for the note (required)
-        content: Updated content/body text (optional)
+        title: New title for the note (optional, keeps existing if not provided)
+        content: Updated content/body text (optional, keeps existing if not provided)
     """
     manager = get_chroma_manager()
     return manager.update_note(note_id, title, content)

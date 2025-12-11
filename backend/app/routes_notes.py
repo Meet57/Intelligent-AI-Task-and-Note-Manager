@@ -35,14 +35,14 @@ def get_note(id):
     return jsonify({"error": "Note not found"}), 404
 
 
-@notes_bp.route("/<int:id>", methods=["PUT"])
+@notes_bp.route("/<int:id>", methods=["PUT", "PATCH"])
 def update_note(id):
     data = request.json
     manager = get_chroma_manager()
     manager.update_note(
         id,
-        data["title"],
-        data.get("content", "")
+        data.get("title"),
+        data.get("content")
     )
     return jsonify({"message": "Note updated"})
 

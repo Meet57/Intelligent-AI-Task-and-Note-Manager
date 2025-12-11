@@ -17,7 +17,7 @@ def create_app():
     CORS(app, 
          resources={r"/*": {"origins": "*"}},
          allow_headers=["Content-Type", "Authorization"],
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
          supports_credentials=False)
 
     # Initialize ChromaDB manager
