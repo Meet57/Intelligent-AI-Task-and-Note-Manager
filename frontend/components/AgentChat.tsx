@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { agentService } from "../utils/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -16,11 +16,33 @@ interface AgentChatProps {
   onMessage?: (message: string, messages: Message[]) => void;
 }
 
+const CHAT_STORAGE_KEY = "agent_chat_messages";
+
 export default function AgentChat({ onMessage }: AgentChatProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsedMessages = JSON.parse(stored);
+        setMessages(parsedMessages);
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+      }
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!message.trim()) {
@@ -64,6 +86,13 @@ export default function AgentChat({ onMessage }: AgentChatProps) {
     }
   };
 
+  const handleReset = () => {
+    setMessages([]);
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    setMessage("");
+    setError("");
+  };
+
   const bubbleColor = {
     human: "bg-blue-600 text-white",
     ai: "bg-gray-200 text-black",
@@ -105,7 +134,9 @@ export default function AgentChat({ onMessage }: AgentChatProps) {
                     ))}
 
                   {msg.type === "tool" ? (
-                    <pre className="p-2 rounded text-sm overflow-x-auto">{msg.content}</pre>
+                    <pre className="p-2 rounded text-sm overflow-x-auto">
+                      {msg.content}
+                    </pre>
                   ) : (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content}
@@ -148,13 +179,23 @@ export default function AgentChat({ onMessage }: AgentChatProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
           />
 
-          <button
-            onClick={handleSend}
-            disabled={loading || !message.trim()}
-            className="w-full mt-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-md font-medium transition"
-          >
-            {loading ? "Thinking..." : "Send"}
-          </button>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={handleSend}
+              disabled={loading || !message.trim()}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-md font-medium transition"
+            >
+              {loading ? "Thinking..." : "Send"}
+            </button>
+            <button
+              onClick={handleReset}
+              disabled={loading}
+              className="bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-md font-medium transition"
+              title="Reset Chat"
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
         {error && (
