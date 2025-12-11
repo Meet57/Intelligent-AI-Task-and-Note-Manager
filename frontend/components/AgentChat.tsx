@@ -75,7 +75,7 @@ export default function AgentChat({ onMessage }: AgentChatProps) {
     <div className="space-y-4 text-black">
       <div className="p-6 rounded-md flex flex-col h-[600px] text-black">
         {/* Messages */}
-        <div className="flex-grow overflow-y-auto space-y-4 pr-2">
+        <div className="grow overflow-y-auto space-y-4 pr-2">
           {messages.map((msg, idx) => (
             <div
               key={idx}

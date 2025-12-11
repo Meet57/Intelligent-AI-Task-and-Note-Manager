@@ -1,11 +1,19 @@
 import random
 from datetime import datetime, timedelta
-from app.utils import db_utils
+from app.db.chroma_manager import get_chroma_manager
 
 # Convenience aliases so existing seed code can call the same function names
-create_note = db_utils.create_note
-create_task = db_utils.create_task
-add_note_to_task = db_utils.add_note_to_task
+def create_note(title, content="", created_at=None):
+    manager = get_chroma_manager()
+    return manager.create_note(title, content, created_at)
+
+def create_task(title, description="", status="pending", deadline=None):
+    manager = get_chroma_manager()
+    return manager.create_task(title, description, status, deadline)
+
+def add_note_to_task(task_id, note_id):
+    manager = get_chroma_manager()
+    return manager.add_note_to_task(task_id, note_id)
 
 def seed_data():
     """Seed the database with realistic CS student tasks and notes."""

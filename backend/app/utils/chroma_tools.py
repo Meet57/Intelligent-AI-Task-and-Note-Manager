@@ -1,18 +1,15 @@
-"""Agent-ready Chromadb tools.
+"""Agent-ready ChromaDB tools.
 
-This module exposes functions that an agent (e.g., LangChain agent) can call:
-- CRUD wrappers -> use `db_utils` so SQL + Chroma stay synced
-- Semantic search helpers -> use `chroma_utils` for vector queries
+This module exposes functions that an agent (e.g., LangChain agent) can call.
+All operations work directly with ChromaDB - simple and straightforward.
 
 Keep these functions simple and idempotent so agents can call them safely.
 """
 from typing import List, Dict, Any, Optional
-
-from app.utils import db_utils
-from app.utils import chroma_utils
+from app.db.chroma_manager import get_chroma_manager
 
 
-# --- CRUD wrappers (call db_utils which orchestrates SQL + Chroma) ---
+# --- CRUD operations (direct ChromaDB access) ---
 def create_task(title: str, description: str = "", status: str = "pending", deadline: Optional[str] = None) -> int:
     """Create a new task with a title, optional description, status, and deadline.
     
@@ -25,7 +22,8 @@ def create_task(title: str, description: str = "", status: str = "pending", dead
     Returns:
         The ID of the newly created task
     """
-    return db_utils.create_task(title, description, status, deadline)
+    manager = get_chroma_manager()
+    return manager.create_task(title, description, status, deadline)
 
 
 def update_task(task_id: int, title: str, description: str = "", status: str = "pending", deadline: Optional[str] = None) -> None:
@@ -38,7 +36,8 @@ def update_task(task_id: int, title: str, description: str = "", status: str = "
         status: Updated status - use 'pending', 'in_progress', or 'completed' (optional)
         deadline: Updated deadline in YYYY-MM-DD format (optional)
     """
-    return db_utils.update_task(task_id, title, description, status, deadline)
+    manager = get_chroma_manager()
+    return manager.update_task(task_id, title, description, status, deadline)
 
 
 def delete_task(task_id: int) -> None:
@@ -47,7 +46,8 @@ def delete_task(task_id: int) -> None:
     Args:
         task_id: The ID of the task to delete
     """
-    return db_utils.delete_task(task_id)
+    manager = get_chroma_manager()
+    return manager.delete_task(task_id)
 
 
 def create_note(title: str, content: str = "", created_at: Optional[str] = None) -> int:
@@ -61,7 +61,8 @@ def create_note(title: str, content: str = "", created_at: Optional[str] = None)
     Returns:
         The ID of the newly created note
     """
-    return db_utils.create_note(title, content, created_at)
+    manager = get_chroma_manager()
+    return manager.create_note(title, content, created_at)
 
 
 def update_note(note_id: int, title: str, content: str = "") -> None:
@@ -72,7 +73,8 @@ def update_note(note_id: int, title: str, content: str = "") -> None:
         title: New title for the note (required)
         content: Updated content/body text (optional)
     """
-    return db_utils.update_note(note_id, title, content)
+    manager = get_chroma_manager()
+    return manager.update_note(note_id, title, content)
 
 
 def delete_note(note_id: int) -> None:
@@ -81,7 +83,8 @@ def delete_note(note_id: int) -> None:
     Args:
         note_id: The ID of the note to delete
     """
-    return db_utils.delete_note(note_id)
+    manager = get_chroma_manager()
+    return manager.delete_note(note_id)
 
 
 def add_note_to_task(task_id: int, note_id: int) -> None:
@@ -91,7 +94,8 @@ def add_note_to_task(task_id: int, note_id: int) -> None:
         task_id: The ID of the task
         note_id: The ID of the note to attach to the task
     """
-    return db_utils.add_note_to_task(task_id, note_id)
+    manager = get_chroma_manager()
+    return manager.add_note_to_task(task_id, note_id)
 
 
 def remove_note_from_task(task_id: int, note_id: int) -> None:
@@ -101,10 +105,11 @@ def remove_note_from_task(task_id: int, note_id: int) -> None:
         task_id: The ID of the task
         note_id: The ID of the note to remove from the task
     """
-    return db_utils.remove_note_from_task(task_id, note_id)
+    manager = get_chroma_manager()
+    return manager.remove_note_from_task(task_id, note_id)
 
 
-# --- Vector search / retrieval helpers (call chroma_utils) ---
+# --- Vector search / retrieval helpers ---
 def search_notes(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
     """Search for notes using semantic similarity (finds notes by meaning, not exact keywords).
     Use this to find notes related to a topic, concept, or question.
@@ -116,7 +121,8 @@ def search_notes(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
     Returns:
         List of matching notes with their content and metadata
     """
-    return chroma_utils.search_notes(query, top_k=top_k)
+    manager = get_chroma_manager()
+    return manager.search_notes(query, top_k=top_k)
 
 
 def search_tasks(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
@@ -130,7 +136,8 @@ def search_tasks(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
     Returns:
         List of matching tasks with their details and metadata
     """
-    return chroma_utils.search_tasks(query, top_k=top_k)
+    manager = get_chroma_manager()
+    return manager.search_tasks(query, top_k=top_k)
 
 
 def get_note_chroma(note_id: int) -> Optional[Dict[str, Any]]:
@@ -142,7 +149,8 @@ def get_note_chroma(note_id: int) -> Optional[Dict[str, Any]]:
     Returns:
         The note data or None if not found
     """
-    return chroma_utils.get_note_from_chroma(note_id)
+    manager = get_chroma_manager()
+    return manager.get_note(note_id)
 
 
 def get_task_chroma(task_id: int) -> Optional[Dict[str, Any]]:
@@ -154,7 +162,8 @@ def get_task_chroma(task_id: int) -> Optional[Dict[str, Any]]:
     Returns:
         The task data or None if not found
     """
-    return chroma_utils.get_task_from_chroma(task_id)
+    manager = get_chroma_manager()
+    return manager.get_task(task_id)
 
 
 # Small RAG helper: Retrieval-Augmented Generation.

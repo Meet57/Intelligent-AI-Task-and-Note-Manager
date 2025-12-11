@@ -1,10 +1,9 @@
 from flask import Flask, jsonify
-from app.db.db import init_db
 from app.routes_tasks import tasks_bp
 from app.routes_notes import notes_bp
 from app.routes_agents import agents_bp
 from flask_cors import CORS
-from app.utils.db_utils import get_all_tasks
+from app.db.chroma_manager import get_chroma_manager
 from app.utils.seed import seed_data
 from app.api import api_bp
 import os
@@ -21,9 +20,11 @@ def create_app():
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
          supports_credentials=False)
 
-    init_db()
+    # Initialize ChromaDB manager
+    manager = get_chroma_manager()
 
-    if not get_all_tasks():
+    # Seed if empty
+    if not manager.get_all_tasks():
         print("No data found. Seeding database...")
         seed_data()
 

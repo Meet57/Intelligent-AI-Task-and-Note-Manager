@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.utils import db_utils
+from app.db.chroma_manager import get_chroma_manager
 import datetime
 
 notes_bp = Blueprint("notes", __name__)
@@ -9,8 +9,9 @@ notes_bp = Blueprint("notes", __name__)
 def create_note():
     data = request.json
     created_at = datetime.datetime.now().isoformat()
+    manager = get_chroma_manager()
     
-    note_id = db_utils.create_note(
+    note_id = manager.create_note(
         data["title"],
         data.get("content", ""),
         created_at
@@ -20,13 +21,15 @@ def create_note():
 
 @notes_bp.route("/", methods=["GET"])
 def get_notes():
-    notes = db_utils.get_all_notes()
+    manager = get_chroma_manager()
+    notes = manager.get_all_notes()
     return jsonify(notes)
 
 
 @notes_bp.route("/<int:id>", methods=["GET"])
 def get_note(id):
-    note = db_utils.get_note_by_id(id)
+    manager = get_chroma_manager()
+    note = manager.get_note(id)
     if note:
         return jsonify(note)
     return jsonify({"error": "Note not found"}), 404
@@ -35,7 +38,8 @@ def get_note(id):
 @notes_bp.route("/<int:id>", methods=["PUT"])
 def update_note(id):
     data = request.json
-    db_utils.update_note(
+    manager = get_chroma_manager()
+    manager.update_note(
         id,
         data["title"],
         data.get("content", "")
@@ -45,17 +49,20 @@ def update_note(id):
 
 @notes_bp.route("/<int:id>", methods=["DELETE"])
 def delete_note(id):
-    db_utils.delete_note(id)
+    manager = get_chroma_manager()
+    manager.delete_note(id)
     return jsonify({"message": "Note deleted"})
 
 
 @notes_bp.route("/<int:note_id>/tasks/<int:task_id>", methods=["POST"])
 def add_task_to_note(note_id, task_id):
-    db_utils.add_note_to_task(task_id, note_id)
+    manager = get_chroma_manager()
+    manager.add_note_to_task(task_id, note_id)
     return jsonify({"message": "Task added to note"})
 
 
 @notes_bp.route("/<int:note_id>/tasks/<int:task_id>", methods=["DELETE"])
 def remove_task_from_note(note_id, task_id):
-    db_utils.remove_note_from_task(task_id, note_id)
+    manager = get_chroma_manager()
+    manager.remove_note_from_task(task_id, note_id)
     return jsonify({"message": "Task removed from note"})

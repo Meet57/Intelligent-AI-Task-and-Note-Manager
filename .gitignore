@@ -39,6 +39,7 @@ instance/
 *.db
 *.sqlite
 *.sqlite3
+vault.db
 chroma_persist/
 
 # Environment variables
