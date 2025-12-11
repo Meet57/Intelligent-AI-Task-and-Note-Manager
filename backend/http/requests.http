@@ -1,0 +1,77 @@
+### HEALTH CHECK
+GET http://localhost:5000/api/health
+
+### TASKS
+
+### Create task
+POST http://localhost:5000/tasks
+Content-Type: application/json
+
+{
+  "title": "Complete project",
+  "description": "Finish the work",
+  "status": "pending",
+  "deadline": "2025-12-15"
+}
+
+### Get all tasks
+GET http://localhost:5000/tasks
+
+### Get single task
+GET http://localhost:5000/tasks/1
+
+### Update task
+PUT http://localhost:5000/tasks/1
+Content-Type: application/json
+
+{
+  "title": "Updated task",
+  "description": "Updated description",
+  "status": "completed"
+}
+
+### Delete task
+DELETE http://localhost:5000/tasks/1
+
+### NOTES
+
+### Create note
+POST http://localhost:5000/notes
+Content-Type: application/json
+
+{
+  "title": "Meeting notes",
+  "content": "Important discussion points"
+}
+
+### Get all notes
+GET http://localhost:5000/notes
+
+### Get single note
+GET http://localhost:5000/notes/1
+
+### Update note
+PUT http://localhost:5000/notes/1
+Content-Type: application/json
+
+{
+  "title": "Updated note",
+  "content": "Updated content"
+}
+
+### Delete note
+DELETE http://localhost:5000/notes/1
+
+### TASK-NOTE ASSOCIATIONS
+
+### Add note to task
+POST http://localhost:5000/tasks/1/notes/1
+
+### Remove note from task
+DELETE http://localhost:5000/tasks/1/notes/1
+
+### Add task to note
+POST http://localhost:5000/notes/1/tasks/1
+
+### Remove task from note
+DELETE http://localhost:5000/notes/1/tasks/1
